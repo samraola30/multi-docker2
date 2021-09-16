@@ -1,24 +1,24 @@
-sudo: required 
-services: 
-  - docker 
+sudo: required
+language: generic
+
+services:
+  - docker
 
 before_install:
   - docker build -t samraola30/react-test -f ./client/Dockerfile.dev ./client
 
 script:
-  - docker run samraola30/react-test npm test -- --coverage   
+  - docker run -e CI=true samraola30/react-test npm test
 
-after_success: 
-  - docker build -t samraola30/multi-client ./client 
-  - docker build -t samraola30/multi-nginx ./nginx 
-  - docker build -t samraola30/multi-server ./server 
-  - docker build -t samraola30/multi-worker ./worker 
- # log in to the docker cli
-
+after_success:
+  - docker build -t samraola30/multi-client ./client
+  - docker build -t samraola30/multi-nginx ./nginx
+  - docker build -t samraola30/multi-server ./server
+  - docker build -t samraola30/multi-worker ./worker
+  # Log in to the docker CLI
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
-
-
+  # Take those images and push them to docker hub
   - docker push samraola30/multi-client
   - docker push samraola30/multi-nginx
-  - docker push samraola30/multi-server 
-  - docker push samraola30/multi-worker 
+  - docker push samraola30/multi-server
+  - docker push samraola30/multi-worker
