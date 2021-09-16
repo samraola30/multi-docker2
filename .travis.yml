@@ -1,0 +1,24 @@
+sudo: required 
+services: 
+  - docker 
+
+before_install:
+  - docker build -t samraola/react-test -f ./client/Dockerfile.dev ./client
+
+script:
+  - docker run samraola/react-test npm test -- --coverage   
+
+after_success: 
+  - docker build -t samraola/multi-client ./client 
+  - docker build -t samraola/multi-nginx ./nginx 
+  - docker build -t samraola/multi-server ./server 
+  - docker build -t samraola/multi-worker ./worker 
+
+
+  - echo "DOCKER_PASSWORD" | docker login -u "$SAMRAOLA" --password-stdin
+
+
+  - docker push samraola/multi-client
+  - docker push samraola/multi-nginx
+  - docker push samraola/multi-server 
+  - docker push samraola/multi-worker 
